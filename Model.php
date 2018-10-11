@@ -8,6 +8,11 @@
 
 namespace woo\domain;
 
+
+require_once ("Collection.php");
+use woo\mapper\SpaceCollection;
+use woo\mapper\EventCollection;
+
 abstract class DomainObject {
     private $id;
     function __construct($id = null)
@@ -46,9 +51,11 @@ class Venue extends DomainObject {
 
     function __construct($id = null,$name = null)
     {
+        parent::__construct($id);
+
         $this->name = $name;
         $this->spaces = self::getCollection("\\woo\\domain\\Space");
-        parent::__construct($id);
+
     }
 
     function setSpaces(SpaceCollection $space){
@@ -70,7 +77,7 @@ class Venue extends DomainObject {
     public function setName($name_s)
     {
         $this->name = $name_s;
-        $this->markDirty();
+      //  $this->markDirty();
     }
 
     /**
