@@ -9,6 +9,8 @@
 namespace woo\mapper;
 require_once ("Model.php");
 use woo\domain\Venue;
+use woo\domain\Space;
+use woo\domain\Event;
 
 abstract class Mapper{
     protected static $PDO;
@@ -103,3 +105,91 @@ class VenueMapper extends Mapper {
 
 }
 
+
+class SpaceMapper extends Mapper
+{
+
+    function __construct()
+    {
+
+        parent::__construct();
+        $this->selectStmt = self::$PDO->prepare("SELECT * FROM space WHERE id = ?");
+        $this->updateStmt = self::$PDO->prepare("UPDATE space SET name=?, id=? WHERE id=?");
+        $this->insertStmt = self::$PDO->prepare("INSERT into space (name) values(?)");
+
+    }
+
+    function getCollection(array $raw){
+        return new EventCollection($raw,$this);
+    }
+
+    protected function doCreateObject(array $array)
+    {
+        print $array['id'];
+        $obj = new Space($array['id']);
+        $obj->setName($array['name']);
+        $obj->setVenue($array['venue']);
+        return $obj;
+    }
+
+    protected function doInsert(\woo\domain\DomainObject $object)
+    {
+        $values = array($object->getName());
+        $this->insertStmt->execute($values);
+        $id=self::$PDO->lastInsertId();
+        $object->setId($id);
+    }
+
+    function update(\woo\domain\DomainObject $object)
+    {
+        $values = array($object->getName(), $object->getId(), $object->getId());
+        $this->updateStmt->execute($values);
+    }
+
+    function selectStmt()
+    {
+        return $this->selectStmt;
+    }
+
+}
+
+class EventMapper extends Mapper
+{
+
+    function __construct()
+    {
+
+        parent::__construct();
+        $this->selectStmt = self::$PDO->prepare("SELECT * FROM event WHERE id = ?");
+        $this->updateStmt = self::$PDO->prepare("UPDATE event SET name=?, id=? WHERE id=?");
+        $this->insertStmt = self::$PDO->prepare("INSERT into event (name) values(?)");
+
+    }
+
+    protected function doCreateObject(array $array)
+    {
+        print $array['id'];
+        $obj = new Venue($array['id']);
+        $obj->setName($array['name']);
+        return $obj;
+    }
+
+    protected function doInsert(\woo\domain\DomainObject $object)
+    {
+        $values = array($object->getName());
+        $this->insertStmt->execute($values);
+        $id=self::$PDO->lastInsertId();
+        $object->setId($id);
+    }
+
+    function update(\woo\domain\DomainObject $object)
+    {
+        $values = array($object->getName(), $object->getId(), $object->getId());
+        $this->updateStmt->execute($values);
+    }
+
+    function selectStmt()
+    {
+        return $this->selectStmt;
+    }
+}

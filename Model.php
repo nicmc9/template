@@ -50,8 +50,12 @@ abstract class DomainObject {
     {
         $this->id = $id;
     }
-    static function getCollection($type){
-        return array(); // заглушка
+    static function getCollection($type=null){
+         if(is_null($type)){
+             return HelperFactory::getCollection(get_called_class());
+         }
+         return HelperFactory::getCollection($type);
+
     }
 
     function collection(){

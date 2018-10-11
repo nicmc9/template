@@ -38,11 +38,15 @@ abstract class Collection implements \Iterator {
 
         $class = $this->targetClass();
         if(!($object instanceof $class)){
-            throw new \Exception("Это коллесция {$class}");
+            throw new \Exception("Это коллекция {$class}");
         }
         $this->notifyAccess();
         $this->objects[$this->total] = $object;
         $this->total++;
+    }
+
+    public function count(){
+        return  count($this->objects);
     }
 
     abstract function targetClass();
@@ -61,6 +65,10 @@ abstract class Collection implements \Iterator {
             return $this->objects[$num];
         }
     }
+
+    //public function elementAt(){}
+    // public function deleteAt(){}
+
 
     public function rewind(){
         $this->pointer = 0;
