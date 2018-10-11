@@ -45,6 +45,11 @@ abstract class Mapper{
             return $object;
     }
 
+    function findAll(){
+        $this->selectAllStmt()->execute(array());
+           return $this->getCollection($this->selectAllStmt()->fetchAll(PDO::FETCH_ASSOC));
+    }
+
     function createObject($array){
         $obj = $this->doCreateObject($array);
         return $obj;
@@ -55,9 +60,11 @@ abstract class Mapper{
     }
 
     abstract function update(\woo\domain\DomainObject $object);
+    abstract function getCollection(array $raw);
     protected abstract function doCreateObject(array $array);
     protected abstract function doInsert(\woo\domain\DomainObject $object);
     protected abstract function selectStmt();
+    protected abstract function selectAllStmt();
 }
 
 class VenueMapper extends Mapper {
@@ -69,18 +76,22 @@ class VenueMapper extends Mapper {
         $this->selectStmt = self::$PDO->prepare("SELECT * FROM venue WHERE id = ?");
         $this->updateStmt = self::$PDO->prepare("UPDATE venue SET name=?, id=? WHERE id=?");
         $this->insertStmt = self::$PDO->prepare("INSERT into venue (name) values(?)");
+        $this->selectAllStmt = self::$PDO->prepare("SELECT * FROM venue");
 
     }
 
     function getCollection(array $raw){
-        return new SpaceCollection($raw,$this);
+        return new VenueCollection($raw,$this);
     }
 
     protected function doCreateObject(array $array)
     {
-        print $array['id'];
+       print $array['id'];
        $obj = new Venue($array['id']);
        $obj->setName($array['name']);
+       $space_mapper = new SpaceMapper();
+       $space_collection = $space_mapper->findByVenue($array['id']);
+       $obj->setSpaces($space_collection);
        return $obj;
     }
 
@@ -103,6 +114,10 @@ class VenueMapper extends Mapper {
        return $this->selectStmt;
     }
 
+    function selectAllStmt()
+    {
+        return $this->selectAllStmt;
+    }
 }
 
 
@@ -116,12 +131,23 @@ class SpaceMapper extends Mapper
         $this->selectStmt = self::$PDO->prepare("SELECT * FROM space WHERE id = ?");
         $this->updateStmt = self::$PDO->prepare("UPDATE space SET name=?, id=? WHERE id=?");
         $this->insertStmt = self::$PDO->prepare("INSERT into space (name) values(?)");
+        $this->selectAllStmt = self::$PDO->prepare("SELECT * FROM space");
+        $this->findByVenueStmt = self::$PDO->prepare("SELECT * FROM space where venue=?");
 
     }
 
     function getCollection(array $raw){
-        return new EventCollection($raw,$this);
+        return new SpaceCollection($raw,$this);
     }
+
+
+    public function findByVenue($vid){
+
+        $this->findByVenueStmt->execute(array($vid));
+        return new SpaceCollection($this->findByVenueStmt->fetchAll(),$this);
+
+    }
+
 
     protected function doCreateObject(array $array)
     {
@@ -150,6 +176,10 @@ class SpaceMapper extends Mapper
     {
         return $this->selectStmt;
     }
+    function selectAllStmt()
+    {
+        return $this->selectAllStmt;
+    }
 
 }
 
@@ -163,7 +193,11 @@ class EventMapper extends Mapper
         $this->selectStmt = self::$PDO->prepare("SELECT * FROM event WHERE id = ?");
         $this->updateStmt = self::$PDO->prepare("UPDATE event SET name=?, id=? WHERE id=?");
         $this->insertStmt = self::$PDO->prepare("INSERT into event (name) values(?)");
+        $this->selectAllStmt = self::$PDO->prepare("SELECT * FROM event");
+    }
 
+    function getCollection(array $raw){
+        return new EventCollection($raw,$this);
     }
 
     protected function doCreateObject(array $array)
@@ -191,5 +225,9 @@ class EventMapper extends Mapper
     function selectStmt()
     {
         return $this->selectStmt;
+    }
+    function selectAllStmt()
+    {
+        return $this->selectAllStmt;
     }
 }

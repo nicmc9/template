@@ -82,11 +82,15 @@ class Venue extends DomainObject {
     }
 
     function getSpaces(){
+        if(is_null($this->spaces)){
+            $finder = HelperFactory::getFinder(Space::class);
+            $this->spaces = $finder->findByVenue($this->getId());
+        }
         return $this->spaces;
     }
 
     function addSpace(Space $space){
-        $this->spaces->add($space);
+        $this->getSpaces()->add($space);
         $space->setVenue($this);
     }
 
