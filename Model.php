@@ -9,9 +9,24 @@
 namespace woo\domain;
 
 
-require_once ("Collection.php");
-use woo\mapper\SpaceCollection;
-use woo\mapper\EventCollection;
+
+
+
+interface VenueCollection extends \Iterator
+{
+    function add(DomainObject $venue);
+}
+
+interface SpaceCollection extends \Iterator
+{
+    function add(DomainObject $space);
+}
+
+interface EventCollection extends \Iterator
+{
+    function add(DomainObject $event);
+}
+
 
 abstract class DomainObject {
     private $id;
