@@ -199,6 +199,10 @@ class Space extends DomainObject {
     {
         return $this->name;
     }
+    public function getVenueId()
+    {
+        return $this->venue->getId();
+    }
 
 }
 

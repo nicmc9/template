@@ -160,7 +160,7 @@ class SpaceMapper extends Mapper
         parent::__construct();
         $this->selectStmt = self::$PDO->prepare("SELECT * FROM space WHERE id = ?");
         $this->updateStmt = self::$PDO->prepare("UPDATE space SET name=?, id=? WHERE id=?");
-        $this->insertStmt = self::$PDO->prepare("INSERT into space (name) values(?)");
+        $this->insertStmt = self::$PDO->prepare("INSERT into space (name,venue) values(?,?)");
         $this->selectAllStmt = self::$PDO->prepare("SELECT * FROM space");
         $this->findByVenueStmt = self::$PDO->prepare("SELECT * FROM space where venue=?");
 
@@ -194,7 +194,7 @@ class SpaceMapper extends Mapper
 
     protected function doInsert(\woo\domain\DomainObject $object)
     {
-        $values = array($object->getName());
+        $values = [$object->getName(),$object->getVenueId()];
         $this->insertStmt->execute($values);
         $id=self::$PDO->lastInsertId();
         $object->setId($id);
