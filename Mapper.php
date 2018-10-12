@@ -185,10 +185,19 @@ class SpaceMapper extends Mapper
 
     protected function doCreateObject(array $array)
     {
-        print $array['id'];
+
         $obj = new Space($array['id']);
+
         $obj->setName($array['name']);
-        $obj->setVenue($array['venue']);
+        $ven_mapper = new VenueMapper();
+        $venue = $ven_mapper->find($array['venue']);
+        $obj->setVenue($venue);
+        // Переносим findBySpaceId в getEvents класса Space
+
+    //    $event_mapper = new EventMapper();
+   //     $event_collection = $event_mapper->findBySpaceId($array['id']);
+    //    $obj->setEvents($event_collection);
+
         return $obj;
     }
 
@@ -228,6 +237,7 @@ class EventMapper extends Mapper
         $this->updateStmt = self::$PDO->prepare("UPDATE event SET name=?, id=? WHERE id=?");
         $this->insertStmt = self::$PDO->prepare("INSERT into event (name) values(?)");
         $this->selectAllStmt = self::$PDO->prepare("SELECT * FROM event");
+        $this->SelectBySpaceStmt =self::$PDO->prepare("SELECT * FROM event WHERE space = ?");
     }
 
     function getCollection(array $raw){
@@ -238,6 +248,11 @@ class EventMapper extends Mapper
     {
         return \woo\domain\Event::class;
     }
+
+    function findBySpaceId($s_id){
+            return new DeferredEventCollection($this,$this->SelectBySpaceStmt,array($s_id));
+    }
+
     protected function doCreateObject(array $array)
     {
         print $array['id'];

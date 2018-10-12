@@ -162,7 +162,12 @@ class Space extends DomainObject {
     }
 
     function getEvents(){
+        if(is_null($this->events)){
+            $this->events = self::getFinder(Event::class)->findBySpaceId($this->getId());
+        }
+
         return $this->events;
+
     }
 
 

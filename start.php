@@ -87,4 +87,9 @@ $venue->addSpace(new Space(null,'The Bar Stage'));
 
 ObjectWatcher::instance()->performOperations();
 
+//[Xdebug]
+//zend_extension="C:\php-7.2.9-nts-Win32-VC15-x64\php_xdebug-2.6.1-7.2-vc15-nts-x86_64.dll"
+//xdebug.remote_enable=1
+//xdebug.remote_port="9000"
+
 ?>
