@@ -29,10 +29,27 @@ interface EventCollection extends \Iterator
 
 
 abstract class DomainObject {
-    private $id;
+    private $id  = -1;
     function __construct($id = null)
     {
-        $this->id = $id;
+        if(is_null($id)){
+            $this->markNew();
+        }else {
+            $this->id = $id;
+        }
+    }
+    function markNew(){
+        \ObjectWatcher::addNew($this);
+    }
+    function markDeleted(){
+        \ObjectWatcher::addDelete($this);
+    }
+
+    function markDirty(){
+        \ObjectWatcher::addDirty($this);
+    }
+    function markClean(){
+        \ObjectWatcher::addClean($this);
     }
 
     /**
@@ -64,7 +81,14 @@ abstract class DomainObject {
 
 
     function finder(){
-        return HelperFactory::getFinder(get_called_class());
+        return self::getFinder(get_class($this));
+    }
+
+    static function getFinder($type=null){
+        if(is_null($type)){
+            return HelperFactory::getFinder(get_called_class());
+        }
+        return HelperFactory::getFinder($type);
     }
 }
 
@@ -105,7 +129,7 @@ class Venue extends DomainObject {
     public function setName($name_s)
     {
         $this->name = $name_s;
-      //  $this->markDirty();
+        $this->markDirty();
     }
 
     /**
@@ -134,6 +158,7 @@ class Space extends DomainObject {
 
     function setEvents(EventCollection $events){
         $this->events = $events;
+        $this->markDirty();
     }
 
     function getEvents(){
@@ -147,6 +172,7 @@ class Space extends DomainObject {
     public function setVenue($venue)
     {
         $this->venue = $venue;
+        $this->markDirty();
     }
 
     /**
@@ -162,6 +188,7 @@ class Space extends DomainObject {
     public function setName($name)
     {
         $this->name = $name;
+        $this->markDirty();
 
     }
 

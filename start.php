@@ -11,6 +11,7 @@ require_once ("Mapper.php");
 require_once ("HelperFactory.php");
 require_once ("Model.php");
 use woo\domain\Venue;
+use woo\domain\Space;
 use woo\domain\HelperFactory;
 
 use \woo\mapper\VenueMapper;
@@ -25,11 +26,11 @@ $mapper = new VenueMapper();
 //$venue2 = new \woo\domain\Venue();
 //$venue2->setName("The Likey Lounge");
 //$mapper->insert($venue2);
-
-$venue = $mapper->find(1);
-print '<pre>';
-print_r($venue);
-print '</pre>';
+//$venue2 = $mapper->find(1);
+//
+//print '<pre>';
+//print_r($venue2);
+//print '</pre>';
 //
 //$venue->setName("The Bibble Beer");
 //
@@ -80,5 +81,10 @@ print '</pre>';
 //print_r($venue);
 //print '</pre>';
 
+$venue = new Venue(null,"The Grenn Trees");
+$venue->addSpace(new Space(null,'The Space Upstairs'));
+$venue->addSpace(new Space(null,'The Bar Stage'));
+
+ObjectWatcher::instance()->performOperations();
 
 ?>

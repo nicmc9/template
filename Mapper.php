@@ -72,6 +72,7 @@ abstract class Mapper{
 
         $obj = $this->doCreateObject($array);
         $this->addToMap($obj);
+        $obj->markClean(); //  Если поменять конструктор Domain и создавать массив по признаку
         return $obj;
     }
 
