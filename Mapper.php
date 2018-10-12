@@ -8,6 +8,8 @@
 
 namespace woo\mapper;
 require_once ("Model.php");
+require_once ("ObjectWatcher.php");
+use woo\domain\DomainObject;
 use woo\domain\Venue;
 use woo\domain\Space;
 use woo\domain\Event;
@@ -32,7 +34,21 @@ abstract class Mapper{
         }
     }
 
+    private function getFromMap($id){
+        return \ObjectWatcher::exists($this->targetClass(),$id);
+    }
+
+    private function addToMap(DomainObject $object){
+         \ObjectWatcher::add($object);
+
+    }
+
+
+
     function find($id){
+       $old = $this->getFromMap($id);
+       if(!is_null($old)){ return $old;}
+
 
       $this->selectStmt()->execute(array($id));
       $array = $this->selectStmt()->fetch();
@@ -51,14 +67,21 @@ abstract class Mapper{
     }
 
     function createObject($array){
+        $old = $this->getFromMap($array['id']);
+        if(!is_null($old)){ return $old;}
+
         $obj = $this->doCreateObject($array);
+        $this->addToMap($old);
         return $obj;
     }
 
     function insert(\woo\domain\DomainObject $obj){
+
         $this->doInsert($obj);
+        $this->addToMap($obj);
     }
 
+    abstract protected function targetClass();
     abstract function update(\woo\domain\DomainObject $object);
     abstract function getCollection(array $raw);
     protected abstract function doCreateObject(array $array);
@@ -82,6 +105,10 @@ class VenueMapper extends Mapper {
 
     function getCollection(array $raw){
         return new VenueCollection($raw,$this);
+    }
+    protected function targetClass()
+    {
+        return \woo\domain\Venue::class;
     }
 
     protected function doCreateObject(array $array)
@@ -140,6 +167,10 @@ class SpaceMapper extends Mapper
         return new SpaceCollection($raw,$this);
     }
 
+    protected function targetClass()
+    {
+        return \woo\domain\Space::class;
+    }
 
     public function findByVenue($vid){
 
@@ -200,6 +231,10 @@ class EventMapper extends Mapper
         return new EventCollection($raw,$this);
     }
 
+    protected function targetClass()
+    {
+        return \woo\domain\Event::class;
+    }
     protected function doCreateObject(array $array)
     {
         print $array['id'];

@@ -61,6 +61,11 @@ abstract class DomainObject {
     function collection(){
         return self::getCollection(get_class($this));
     }
+
+
+    function finder(){
+        return HelperFactory::getFinder(get_called_class());
+    }
 }
 
 class Venue extends DomainObject {

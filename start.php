@@ -40,24 +40,45 @@ use \woo\mapper\VenueMapper;
 //print_r($venue);
 //print '</pre>';
 
-print_r(Venue::class);
-
-//$collection = HelperFactory::getCollection(Venue::class);
-$collection = Venue::getCollection();
-
-try {
-    $collection->add(new Venue(null, "Loud and Thumping"));
-    $collection->add(new Venue(null, "Eeezy"));
-    $collection->add(new Venue(null, "Duck and Badger"));
-}catch (Exception $exception){
-    print "Че-то не так {$exception}";
-
-}
-foreach ($collection as $value){
-    print '<pre>';
-    print_r($value);
-    print '</pre>';
-}
+//print_r(Venue::class);
 //
+////$collection = HelperFactory::getCollection(Venue::class);
+//$collection = Venue::getCollection();
+//
+//try {
+//    $collection->add(new Venue(null, "Loud and Thumping"));
+//    $collection->add(new Venue(null, "Eeezy"));
+//    $collection->add(new Venue(null, "Duck and Badger"));
+//}catch (Exception $exception){
+//    print "Че-то не так {$exception}";
+//
+//}
+//foreach ($collection as $value){
+//    print '<pre>';
+//    print_r($value);
+//    print '</pre>';
+//}
+//
+
+$venue = new Venue();
+$mapper = $venue->finder();
+
+$venue->setName("The Likey Louge");
+
+$mapper->insert($venue);
+$venue = $mapper->find($venue->getId());
+print '<pre>';
+print_r($venue);
+print '</pre>';
+
+
+$venue->setName("The bibble Beer Likey Lounge");
+$mapper->update($venue);
+
+$venue=$mapper->find($venue->getId());
+print '<pre>';
+print_r($venue);
+print '</pre>';
+
 
 ?>
