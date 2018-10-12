@@ -115,7 +115,7 @@ class VenueMapper extends Mapper {
 
     protected function doCreateObject(array $array)
     {
-       print $array['id'];
+
        $obj = new Venue($array['id']);
        $obj->setName($array['name']);
        $space_mapper = new SpaceMapper();
