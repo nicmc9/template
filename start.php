@@ -15,9 +15,9 @@ use woo\domain\HelperFactory;
 
 use \woo\mapper\VenueMapper;
 //
-//$mapper = new VenueMapper();
-//
-//$venue = $mapper->find(1);
+$mapper = new VenueMapper();
+
+
 //print '<pre>';
 //print_r($venue);
 //print '</pre>';
@@ -25,11 +25,11 @@ use \woo\mapper\VenueMapper;
 //$venue2 = new \woo\domain\Venue();
 //$venue2->setName("The Likey Lounge");
 //$mapper->insert($venue2);
-//
-//$venue = $mapper->find($venue2->getId());
-//print '<pre>';
-//print_r($venue);
-//print '</pre>';
+
+$venue = $mapper->find(1);
+print '<pre>';
+print_r($venue);
+print '</pre>';
 //
 //$venue->setName("The Bibble Beer");
 //
@@ -60,25 +60,25 @@ use \woo\mapper\VenueMapper;
 //}
 //
 
-$venue = new Venue();
-$mapper = $venue->finder();
-
-$venue->setName("The Likey Louge");
-
-$mapper->insert($venue);
-$venue = $mapper->find($venue->getId());
-print '<pre>';
-print_r($venue);
-print '</pre>';
-
-
-$venue->setName("The bibble Beer Likey Lounge");
-$mapper->update($venue);
-
-$venue=$mapper->find($venue->getId());
-print '<pre>';
-print_r($venue);
-print '</pre>';
+//$venue = new Venue();
+//$mapper = $venue->finder();
+//
+//$venue->setName("The Likey Louge");
+//
+//$mapper->insert($venue);
+//$venue = $mapper->find($venue->getId());
+//print '<pre>';
+//print_r($venue);
+//print '</pre>';
+//
+//
+//$venue->setName("The bibble Beer Likey Lounge");
+//$mapper->update($venue);
+//
+//$venue=$mapper->find($venue->getId());
+//print '<pre>';
+//print_r($venue);
+//print '</pre>';
 
 
 ?>

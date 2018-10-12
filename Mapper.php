@@ -71,7 +71,7 @@ abstract class Mapper{
         if(!is_null($old)){ return $old;}
 
         $obj = $this->doCreateObject($array);
-        $this->addToMap($old);
+        $this->addToMap($obj);
         return $obj;
     }
 
@@ -79,6 +79,7 @@ abstract class Mapper{
 
         $this->doInsert($obj);
         $this->addToMap($obj);
+        return;
     }
 
     abstract protected function targetClass();
@@ -128,6 +129,7 @@ class VenueMapper extends Mapper {
         $this->insertStmt->execute($values);
         $id=self::$PDO->lastInsertId();
         $object->setId($id);
+        return;
     }
 
     function update(\woo\domain\DomainObject $object)
