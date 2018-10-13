@@ -71,7 +71,8 @@ abstract class Mapper{
         if(!is_null($old)){ return $old;}
 
         $obj = $this->doCreateObject($array);
-        $this->addToMap($old);
+        $this->addToMap($obj);
+        $obj->markClean(); //  Если поменять конструктор Domain и создавать массив по признаку
         return $obj;
     }
 
@@ -79,6 +80,7 @@ abstract class Mapper{
 
         $this->doInsert($obj);
         $this->addToMap($obj);
+        return;
     }
 
     abstract protected function targetClass();
@@ -113,7 +115,7 @@ class VenueMapper extends Mapper {
 
     protected function doCreateObject(array $array)
     {
-       print $array['id'];
+
        $obj = new Venue($array['id']);
        $obj->setName($array['name']);
        $space_mapper = new SpaceMapper();
@@ -128,6 +130,7 @@ class VenueMapper extends Mapper {
         $this->insertStmt->execute($values);
         $id=self::$PDO->lastInsertId();
         $object->setId($id);
+        return;
     }
 
     function update(\woo\domain\DomainObject $object)
@@ -157,7 +160,7 @@ class SpaceMapper extends Mapper
         parent::__construct();
         $this->selectStmt = self::$PDO->prepare("SELECT * FROM space WHERE id = ?");
         $this->updateStmt = self::$PDO->prepare("UPDATE space SET name=?, id=? WHERE id=?");
-        $this->insertStmt = self::$PDO->prepare("INSERT into space (name) values(?)");
+        $this->insertStmt = self::$PDO->prepare("INSERT into space (name,venue) values(?,?)");
         $this->selectAllStmt = self::$PDO->prepare("SELECT * FROM space");
         $this->findByVenueStmt = self::$PDO->prepare("SELECT * FROM space where venue=?");
 
@@ -182,16 +185,25 @@ class SpaceMapper extends Mapper
 
     protected function doCreateObject(array $array)
     {
-        print $array['id'];
+
         $obj = new Space($array['id']);
+
         $obj->setName($array['name']);
-        $obj->setVenue($array['venue']);
+        $ven_mapper = new VenueMapper();
+        $venue = $ven_mapper->find($array['venue']);
+        $obj->setVenue($venue);
+        // Переносим findBySpaceId в getEvents класса Space
+
+    //    $event_mapper = new EventMapper();
+   //     $event_collection = $event_mapper->findBySpaceId($array['id']);
+    //    $obj->setEvents($event_collection);
+
         return $obj;
     }
 
     protected function doInsert(\woo\domain\DomainObject $object)
     {
-        $values = array($object->getName());
+        $values = [$object->getName(),$object->getVenueId()];
         $this->insertStmt->execute($values);
         $id=self::$PDO->lastInsertId();
         $object->setId($id);
@@ -225,6 +237,7 @@ class EventMapper extends Mapper
         $this->updateStmt = self::$PDO->prepare("UPDATE event SET name=?, id=? WHERE id=?");
         $this->insertStmt = self::$PDO->prepare("INSERT into event (name) values(?)");
         $this->selectAllStmt = self::$PDO->prepare("SELECT * FROM event");
+        $this->SelectBySpaceStmt =self::$PDO->prepare("SELECT * FROM event WHERE space = ?");
     }
 
     function getCollection(array $raw){
@@ -235,6 +248,11 @@ class EventMapper extends Mapper
     {
         return \woo\domain\Event::class;
     }
+
+    function findBySpaceId($s_id){
+            return new DeferredEventCollection($this,$this->SelectBySpaceStmt,array($s_id));
+    }
+
     protected function doCreateObject(array $array)
     {
         print $array['id'];

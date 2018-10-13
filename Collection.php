@@ -17,21 +17,20 @@ namespace woo\mapper;
 
 abstract class Collection implements \Iterator {
 
-    protected $mapper;
+    protected $dofact;
     protected $total = 0;
     protected $raw = array();
 
-    private $result;
     private $pointer = 0;
     private $objects = array();
 
-    function __construct(array $raw=null, Mapper $mapper=null)
+    function __construct(array $raw=null, DomainObjectFactory $dofact=null)
     {
-        if(!is_null($raw)&&!is_null($mapper)){
+        if(!is_null($raw)&&!is_null($dofact)){
             $this->raw =$raw;
             $this->total = count($raw);
         }
-        $this->mapper = $mapper;
+        $this->dofact = $dofact;
     }
 
     function add(\woo\domain\DomainObject $object){
@@ -50,7 +49,7 @@ abstract class Collection implements \Iterator {
     }
 
     abstract function targetClass();
-    protected function notifyAccess(){}
+    protected function notifyAccess(){ return;}
 
     private function getRow($num){
         $this->notifyAccess();
@@ -61,7 +60,7 @@ abstract class Collection implements \Iterator {
             return $this->objects[$num];
         }
         if(isset($this->raw[$num])){
-            $this->objects[$num] = $this->mapper->createObject($this->raw[$num]);
+            $this->objects[$num] = $this->dofact->createObject($this->raw[$num]);
             return $this->objects[$num];
         }
     }
@@ -122,3 +121,29 @@ class EventCollection extends Collection implements \woo\domain\EventCollection{
         return "\woo\domain\Event";
     }
 }
+
+
+class DeferredEventCollection extends EventCollection{
+
+    private $stmt;
+    private $valueArray;
+    private $run=false;
+
+    function __construct(Mapper $mapper, \PDOStatement $stmt_handle, array $valueArray)
+    {
+        parent::__construct(null, $mapper);
+        $this->stmt = $stmt_handle;
+        $this->valueArray=$valueArray;
+    }
+
+    function notifyAccess()
+    {
+        if(!$this->run){
+            $this->stmt->execute($this->valueArray);
+            $this->raw=$this->stmt->fetchAll();
+            $this->total = count($this->raw);
+        }
+        $this->run = true;
+    }
+}
+
